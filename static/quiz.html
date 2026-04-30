@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>クイズ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2 id="title"></h2>
+
+  <div class="card" id="quiz-box">
+    <h3 id="question"></h3>
+
+    <div id="choices"></div>
+
+    <input id="fill-input" style="display:none;" placeholder="答えを入力">
+
+    <button class="btn" onclick="submitAnswer()">回答する</button>
+
+    <p class="message" id="msg"></p>
+  </div>
+
+  <button class="btn" style="background:#aaa;margin-top:20px;" onclick="back()">戻る</button>
+</div>
+
+<!-- 正解・不正解サウンド -->
+<audio id="correct-sound" src="sounds/correct.mp3"></audio>
+<audio id="wrong-sound" src="sounds/wrong.mp3"></audio>
+
+<script>
+let questions = [];
+let index = 0;
+let score = 0;
+
+/* ============================
+   星アニメーション
+============================ */
+function spawnStar() {
+  const star = document.createElement("div");
+  star.className = "star";
+  star.innerText = "⭐";
+
+  star.style.left = (Math.random() * window.innerWidth) + "px";
+  star.style.top = (window.innerHeight - 50) + "px";
+
+  document.body.appendChild(star);
+
+  setTimeout(() => star.remove(), 800);
+}
+
+/* ============================
+   問題ロード
+============================ */
+async function loadQuestions() {
+  const category = localStorage.getItem("category");
+  const level = localStorage.getItem("level");
+
+  document.getElementById("title").innerText =
+    `${category}（${level}）`;
+
+  const res = await fetch(`/questions?category=${category}&level=${level}`);
+  questions = await res.json();
+
+  if (questions.length === 0) {
+    document.getElementById("quiz-box").innerHTML =
+      "<h3>問題がありません</h3>";
+    return;
+  }
+
+  showQuestion();
+}
+
+/* ============================
+   問題表示
+============================ */
+function showQuestion() {
+  const q = questions[index];
+
+  document.getElementById("question").innerText = q.question;
+  document.getElementById("msg").innerText = "";
+
+  const choicesBox = document.getElementById("choices");
+  const fillInput = document.getElementById("fill-input");
+
+  choicesBox.innerHTML = "";
+  fillInput.style.display = "none";
+
+  if (q.type === "choice") {
+    q.choices.forEach(c => {
+      const btn = document.createElement("button");
+      btn.className = "btn";
+      btn.style.marginTop = "10px";
+      btn.innerText = c;
+      btn.onclick = () => {
+        document.querySelectorAll("#choices button")
+          .forEach(b => b.style.background = "#58CC02");
+        btn.style.background = "#4CAF50";
+        btn.dataset.selected = "1";
+      };
+      choicesBox.appendChild(btn);
+    });
+  } else {
+    fillInput.style.display = "block";
+  }
+}
+
+/* ============================
+   回答処理
+============================ */
+async function submitAnswer() {
+  const q = questions[index];
+  let user_answer = "";
+
+  if (q.type === "choice") {
+    const selected = [...document.querySelectorAll("#choices button")]
+      .find(b => b.dataset.selected === "1");
+    if (!selected) {
+      document.getElementById("msg").innerText = "選択してください";
+      return;
+    }
+    user_answer = selected.innerText;
+  } else {
+    user_answer = document.getElementById("fill-input").value;
+    if (!user_answer) {
+      document.getElementById("msg").innerText = "入力してください";
+      return;
+    }
+  }
+
+  const res = await fetch("/check", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({id: q.id, user_answer})
+  });
+
+  const data = await res.json();
+
+  if (data.correct) {
+    score++;
+    document.getElementById("correct-sound").play();
+    spawnStar();
+  } else {
+    document.getElementById("wrong-sound").play();
+  }
+
+  index++;
+
+  if (index >= questions.length) {
+    finishQuiz();
+  } else {
+    showQuestion();
+  }
+}
+
+/* ============================
+   結果保存
+============================ */
+async function finishQuiz() {
+  const category = localStorage.getItem("category");
+  const level = localStorage.getItem("level");
+  const token = localStorage.getItem("token");
+
+  const res = await fetch("/score/save", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      category,
+      level,
+      score,
+      total: questions.length
+    })
+  });
+
+  const data = await res.json();
+
+  // XPバー光エフェクトをマイページで発動
+  localStorage.setItem("xp_flash", "1");
+
+  alert(`終了！\nスコア: ${score} / ${questions.length}\n獲得XP: ${data.gained_xp}`);
+
+  window.location.href = "mypage.html";
+}
+
+/* ============================
+   戻る
+============================ */
+function back() {
+  window.location.href = "level.html";
+}
+
+loadQuestions();
+</script>
+
+</body>
+</html>
