@@ -1,0 +1,186 @@
+/* ============================
+   Duolingo風 全体デザイン
+============================ */
+
+body {
+  font-family: "Arial Rounded MT Bold", "Helvetica Rounded", Arial, sans-serif;
+  background: #F0F4F8;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  max-width: 700px;
+  margin: auto;
+}
+
+h1, h2, h3 {
+  text-align: center;
+  color: #333;
+  font-weight: bold;
+}
+
+/* ============================
+   カードデザイン
+============================ */
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 25px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  text-align: center;
+  transition: 0.2s;
+  cursor: pointer;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 14px rgba(0,0,0,0.12);
+}
+
+/* ============================
+   グリッド
+============================ */
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+}
+
+/* ============================
+   ボタン
+============================ */
+
+.btn {
+  width: 100%;
+  padding: 15px;
+  background: #58CC02;
+  color: white;
+  border: none;
+  border-radius: 30px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+.btn:hover {
+  background: #4CAF50;
+}
+
+/* ============================
+   入力欄
+============================ */
+
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  border-radius: 15px;
+  border: 2px solid #ddd;
+  margin: 8px 0;
+  font-size: 16px;
+}
+
+input:focus, textarea:focus, select:focus {
+  border-color: #58CC02;
+  outline: none;
+}
+
+/* ============================
+   テーブル
+============================ */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+th, td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  text-align: center;
+}
+
+th {
+  background: #E8F5E9;
+  font-weight: bold;
+}
+
+/* ============================
+   メッセージ
+============================ */
+
+.message {
+  margin-top: 10px;
+  text-align: center;
+  color: red;
+}
+
+/* ============================
+   ★ 正解アニメーション（星）
+============================ */
+
+.star {
+  position: fixed;
+  font-size: 30px;
+  animation: star-fly 0.8s ease-out forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+@keyframes star-fly {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-150px) scale(1.8);
+  }
+}
+
+/* ============================
+   XPバー（Duolingo風）
+============================ */
+
+.xp-bar-container {
+  width: 100%;
+  height: 20px;
+  background: #d8e6d8;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 10px;
+}
+
+.xp-bar {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, #58CC02, #8BEA00);
+  border-radius: 20px;
+  transition: width 1s ease-out;
+}
+
+/* ============================
+   XPバー光エフェクト
+============================ */
+
+.xp-bar.flash {
+  animation: xp-flash 0.6s ease-out;
+}
+
+@keyframes xp-flash {
+  0% {
+    box-shadow: 0 0 0px rgba(255,255,255,0);
+  }
+  30% {
+    box-shadow: 0 0 20px rgba(255,255,255,0.9);
+  }
+  100% {
+    box-shadow: 0 0 0px rgba(255,255,255,0);
+  }
+}
