@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>マイページ</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>マイページ</h2>
+
+  <div class="card">
+    <h3 id="username"></h3>
+
+    <p>レベル: <span id="level"></span></p>
+    <p>XP: <span id="xp"></span></p>
+    <p>次のレベルまで: <span id="next_xp"></span> XP</p>
+    <p>称号: <span id="badge"></span></p>
+
+    <!-- XPバー -->
+    <div class="xp-bar-container">
+      <div id="xp-bar" class="xp-bar"></div>
+    </div>
+
+    <button class="btn" onclick="goCategory()">学習を始める</button>
+    <button class="btn" style="background:#e53935;margin-top:10px;" onclick="logout()">ログアウト</button>
+  </div>
+
+  <h3>カテゴリ × レベル別の進捗</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>カテゴリ</th>
+        <th>レベル</th>
+        <th>正解数</th>
+        <th>問題数</th>
+        <th>正答率</th>
+      </tr>
+    </thead>
+    <tbody id="progress-table"></tbody>
+  </table>
+
+  <h3>スコア履歴</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>日付</th>
+        <th>カテゴリ</th>
+        <th>レベル</th>
+        <th>スコア</th>
+      </tr>
+    </thead>
+    <tbody id="score-table"></tbody>
+  </table>
+
+  <button class="btn" onclick="goCMS()">問題管理（CMS）</button>
+</div>
+
+<script>
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+/* ============================
+   XPバー更新
+============================ */
+function updateXPBar(xp, next_xp) {
+  const bar = document.getElementById("xp-bar");
+  const percent = Math.min(100, (xp / (xp + next_xp)) * 100);
+  bar.style.width = percent + "%";
+}
+
+/* ============================
+   XPバー光エフェクト
+============================ */
+function flashXPBar() {
+  const bar = document.getElementById("xp-bar");
+  bar.classList.add("flash");
+  setTimeout(() => bar.classList.remove("flash"), 600);
+}
+
+/* ============================
+   XPバー光エフェクト発動チェック
+============================ */
+function checkXPFlash() {
+  const flash = localStorage.getItem("xp_flash");
+  if (flash === "1") {
+    flashXPBar();
+    localStorage.removeItem("xp_flash");
+  }
+}
+
+/* ============================
+   ユーザーステータス読み込み
+============================ */
+async function loadStatus() {
+  const token = getToken();
+  if (!token) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  const res = await fetch("/user/status", {
+    headers: {"Authorization": "Bearer " + token}
+  });
+
+  const data = await res.json();
+
+  document.getElementById("username").innerText = data.username;
+  document.getElementById("level").innerText = data.level;
+  document.getElementById("xp").innerText = data.xp;
+  document.getElementById("next_xp").innerText = data.next_xp;
+  document.getElementById("badge").innerText = data.badge;
+
+  updateXPBar(data.xp, data.next_xp);
+}
+
+/* ============================
+   進捗読み込み
+============================ */
+async function loadProgress() {
+  const token = getToken();
+  const res = await fetch("/progress", {
+    headers: {"Authorization": "Bearer " + token}
+  });
+
+  const data = await res.json();
+  const table = document.getElementById("progress-table");
+  table.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.category}</td>
+      <td>${row.level}</td>
+      <td>${row.correct}</td>
+      <td>${row.total}</td>
+      <td>${row.rate}%</td>
+    `;
+    table.appendChild(tr);
+  });
+}
+
+/* ============================
+   スコア履歴読み込み
+============================ */
+async function loadScores() {
+  const token = getToken();
+  const res = await fetch("/score/list", {
+    headers: {"Authorization": "Bearer " + token}
+  });
+
+  const data = await res.json();
+  const table = document.getElementById("score-table");
+  table.innerHTML = "";
+
+  data.forEach(row => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${row.created_at}</td>
+      <td>${row.category}</td>
+      <td>${row.level}</td>
+      <td>${row.score}/${row.total}</td>
+    `;
+    table.appendChild(tr);
+  });
+}
+
+/* ============================
+   ページ遷移
+============================ */
+function goCategory() {
+  window.location.href = "category.html";
+}
+
+function goCMS() {
+  window.location.href = "cms.html";
+}
+
+function logout() {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user_id");
+  window.location.href = "login.html";
+}
+
+/* ============================
+   初期ロード
+============================ */
+loadStatus();
+loadProgress();
+loadScores();
+checkXPFlash();
+</script>
+
+</body>
+</html>

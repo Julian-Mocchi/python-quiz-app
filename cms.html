@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>問題管理（CMS）</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>問題管理（CMS）</h2>
+
+  <!-- ① 問題追加カード -->
+  <div class="card">
+    <h3>問題を追加</h3>
+
+    <select id="category">
+      <option value="Python基礎">Python基礎</option>
+      <option value="データ型">データ型</option>
+      <option value="制御構文">制御構文</option>
+      <option value="関数">関数</option>
+      <option value="クラス">クラス</option>
+      <option value="応用問題">応用問題</option>
+    </select>
+
+    <select id="level">
+      <option value="初級">初級</option>
+      <option value="中級">中級</option>
+      <option value="上級">上級</option>
+    </select>
+
+    <select id="type">
+      <option value="choice">選択式</option>
+      <option value="fill">入力式</option>
+    </select>
+
+    <textarea id="question" placeholder="問題文"></textarea>
+    <textarea id="choices" placeholder="選択肢（カンマ区切り）"></textarea>
+    <input id="answer" placeholder="答え">
+
+    <button class="btn" onclick="addQuestion()">追加</button>
+    <p class="message" id="msg-add"></p>
+  </div>
+
+  <!-- ② CSV / Excel インポートカード（追加部分） -->
+  <div class="card">
+    <h3>CSV / Excel インポート</h3>
+    <input type="file" id="import-file">
+    <button class="btn" onclick="importFile()">インポート</button>
+    <p class="message" id="msg-import"></p>
+  </div>
+
+  <!-- ③ 問題一覧 -->
+  <h3>登録済みの問題一覧</h3>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>カテゴリ</th>
+        <th>レベル</th>
+        <th>タイプ</th>
+        <th>問題文</th>
+        <th>選択肢</th>
+        <th>答え</th>
+        <th>操作</th>
+      </tr>
+    </thead>
+    <tbody id="cms-table"></tbody>
+  </table>
+
+  <button class="btn" style="background:#aaa;margin-top:20px;" onclick="back()">戻る</button>
+</div>
+
+<script>
+function getToken() {
+  return localStorage.getItem("token");
+}
+
+/* ============================
+   問題追加
+============================ */
+async function addQuestion() {
+  const token = getToken();
+
+  const data = {
+    category: document.getElementById("category").value,
+    level: document.getElementById("level").value,
+    type: document.getElementById("type").value,
+    question: document.getElementById("question").value,
+    choices: JSON.stringify(
+      document.getElementById("choices").value.split(",").map(s => s.trim())
+    ),
+    answer: document.getElementById("answer").value
+  };
+
+  const res = await fetch("/cms/add", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify(data)
+  });
+
+  const json = await res.json();
+
+  if (json.status === "added") {
+    document.getElementById("msg-add").innerText = "追加しました！";
+    loadCMS();
+  }
+}
+
+/* ============================
+   CSV / Excel インポート（追加部分）
+============================ */
+async function importFile() {
+  const fileInput = document.getElementById("import-file");
+  if (!fileInput.files.length) {
+    document.getElementById("msg-import").innerText = "ファイルを選択してください";
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const token = getToken();
+
+  const res = await fetch("/cms/import", {
+    method: "POST",
+    headers: {
+      "Authorization": "Bearer " + token
+    },
+    body: formData
+  });
+
+  const data = await res.json();
+
+  if (data.status === "imported") {
+    document.getElementById("msg-import").innerText =
+      `インポート完了（${data.type}）`;
+    loadCMS();
+  } else {
+    document.getElementById("msg-import").innerText = "インポートに失敗しました";
+  }
+}
+
+/* ============================
+   問題一覧ロード
+============================ */
+async function loadCMS() {
+  const token = getToken();
+
+  const res = await fetch("/cms/list", {
+    headers: {"Authorization": "Bearer " + token}
+  });
+
+  const data = await res.json();
+  const table = document.getElementById("cms-table");
+  table.innerHTML = "";
+
+  data.forEach(q => {
+    const tr = document.createElement("tr");
+
+    tr.innerHTML = `
+      <td>${q.id}</td>
+      <td>${q.category}</td>
+      <td>${q.level}</td>
+      <td>${q.type}</td>
+      <td>${q.question}</td>
+      <td>${q.choices}</td>
+      <td>${q.answer}</td>
+      <td>
+        <button class="btn" onclick="editQuestion(${q.id})">編集</button>
+        <button class="btn" style="background:#e53935" onclick="deleteQuestion(${q.id})">削除</button>
+      </td>
+    `;
+
+    table.appendChild(tr);
+  });
+}
+
+/* ============================
+   編集
+============================ */
+async function editQuestion(id) {
+  const newQ = prompt("新しい問題文を入力してください");
+  if (!newQ) return;
+
+  const newA = prompt("新しい答えを入力してください");
+  if (!newA) return;
+
+  const token = getToken();
+
+  const res = await fetch("/cms/edit", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      id,
+      category: "Python基礎",
+      level: "初級",
+      type: "fill",
+      question: newQ,
+      choices: "[]",
+      answer: newA
+    })
+  });
+
+  loadCMS();
+}
+
+/* ============================
+   削除
+============================ */
+async function deleteQuestion(id) {
+  if (!confirm("本当に削除しますか？")) return;
+
+  const token = getToken();
+
+  await fetch("/cms/delete", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({id})
+  });
+
+  loadCMS();
+}
+
+/* ============================
+   戻る
+============================ */
+function back() {
+  window.location.href = "mypage.html";
+}
+
+loadCMS();
+</script>
+
+</body>
+</html>
