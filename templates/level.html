@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>レベル選択</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>レベルを選択</h2>
+
+  <button class="btn" onclick="goQuiz('初級')">初級</button>
+  <button class="btn" onclick="goQuiz('中級')">中級</button>
+
+  <button class="btn" style="margin-top:20px;background:#aaa;" onclick="goBack()">戻る</button>
+</div>
+
+<script>
+function goQuiz(level) {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  const category = params.get("category");
+
+  window.location.href =
+    `/quiz.html?username=${username}&category=${category}&level=${level}`;
+}
+
+function goBack() {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  const category = params.get("category");
+
+  window.location.href =
+    `/category.html?username=${username}`;
+}
+</script>
+
+</body>
+</html>
