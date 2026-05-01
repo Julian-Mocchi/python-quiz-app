@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>カテゴリ選択</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>カテゴリを選択</h2>
+
+  <button class="btn" onclick="goLevel('Python基礎')">Python基礎</button>
+  <button class="btn" onclick="goLevel('Python応用')">Python応用</button>
+
+  <button class="btn" style="margin-top:20px;background:#aaa;" onclick="goBack()">戻る</button>
+</div>
+
+<script>
+function goLevel(category) {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  window.location.href = `/level.html?username=${username}&category=${category}`;
+}
+
+function goBack() {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  window.location.href = `/mypage.html?username=${username}`;
+}
+</script>
+
+</body>
+</html>
