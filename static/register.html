@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>新規登録</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>新規登録</h2>
+
+  <div class="card">
+    <form action="/api/register" method="post">
+      <input name="username" placeholder="ユーザー名" required>
+      <input name="password" type="password" placeholder="パスワード" required>
+      <input name="password2" type="password" placeholder="パスワード（確認）" required>
+      <button class="btn" type="submit">登録する</button>
+    </form>
+
+    <p style="margin-top:15px;">
+      すでにアカウントがある？ <a href="login.html">ログイン</a>
+    </p>
+  </div>
+</div>
+
+</body>
+</html>
