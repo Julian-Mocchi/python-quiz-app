@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>問題管理（CMS）</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+  <h2>問題管理（CMS）</h2>
+
+  <h3>CSV アップロード</h3>
+  <form action="/api/upload_csv" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <button class="btn" type="submit">CSV をアップロード</button>
+  </form>
+
+  <h3>Excel（.xlsx）アップロード</h3>
+  <form action="/api/upload_excel" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".xlsx" required>
+    <button class="btn" type="submit">Excel をアップロード</button>
+  </form>
+
+  <button class="btn" style="margin-top:20px;background:#aaa;" onclick="goBack()">戻る</button>
+</div>
+
+<script>
+function goBack() {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  window.location.href = `/mypage.html?username=${username}`;
+}
+</script>
+
+</body>
+</html>
