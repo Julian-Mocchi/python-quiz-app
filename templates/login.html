@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ログイン</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="login-bg">
+
+  <div class="login-card">
+
+    <div class="login-title">ログイン</div>
+
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    {% if message %}
+      <p class="message">{{ message }}</p>
+    {% endif %}
+
+    <form action="/api/login" method="post">
+      <input class="input-box" type="text" name="username" placeholder="ユーザー名" required>
+      <input class="input-box" type="password" name="password" placeholder="パスワード" required>
+      <button class="btn" type="submit">ログイン</button>
+    </form>
+
+    <div class="register-link">
+      <a href="/register.html">新規登録はこちら</a>
+    </div>
+
+  </div>
+
+</div>
+
+</body>
+</html>
