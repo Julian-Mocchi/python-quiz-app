@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>クイズ</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+
+  <h2>{{ category }}（{{ level }}）</h2>
+  <h3>問題 {{ number }} / {{ total }}</h3>
+
+  {% if question %}
+    <div class="card">
+      <p>{{ question }}</p>
+
+      <form method="post" action="/api/answer">
+        <input type="hidden" name="username" value="{{ username }}">
+        <input type="hidden" name="category" value="{{ category }}">
+        <input type="hidden" name="level" value="{{ level }}">
+        <input type="hidden" name="question_id" value="{{ question_id }}">
+        <input type="hidden" name="number" value="{{ number }}">
+        <input type="hidden" name="total" value="{{ total }}">
+
+        {% for c in choices %}
+          <label class="choice">
+            <input type="radio" name="answer" value="{{ loop.index }}" required>
+            {{ c }}
+          </label>
+        {% endfor %}
+
+        <button class="btn" type="submit">回答する</button>
+      </form>
+    </div>
+
+  {% else %}
+    <h3>問題がありません</h3>
+  {% endif %}
+
+  <button class="btn" style="margin-top:20px;background:#aaa;" onclick="goBack()">戻る</button>
+
+</div>
+
+<script>
+function goBack() {
+  const params = new URLSearchParams(window.location.search);
+  const username = params.get("username");
+  window.location.href = `/level.html?username=${username}&category={{ category }}`;
+}
+</script>
+<audio id="correct-sound" src="/static/sounds/correct.mp3"></audio>
+<audio id="wrong-sound" src="/static/sounds/wrong.mp3"></audio>
+
+<div id="effect-correct" class="effect-correct"></div>
+<div id="effect-wrong" class="effect-wrong"></div>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const form = document.querySelector("form");
+    const choices = document.querySelectorAll("input[name='answer']");
+    let locked = false;
+
+    form.addEventListener("submit", (e) => {
+        if (locked) {
+            e.preventDefault();
+            return;
+        }
+        locked = true;
+
+        // 選択された値を取得
+        const selected = document.querySelector("input[name='answer']:checked");
+        if (!selected) return;
+
+        const userAnswer = parseInt(selected.value);
+        const correctAnswer = {{ correct_answer|default(0) }};
+
+        if (userAnswer === correctAnswer) {
+            // 正解演出
+            document.getElementById("correct-sound").play();
+
+            const eff = document.getElementById("effect-correct");
+            eff.style.opacity = 1;
+            setTimeout(() => eff.style.opacity = 0, 500);
+
+            // ★ 星を飛ばす
+            spawnStars();
+
+        } else {
+            // 不正解演出
+            document.getElementById("wrong-sound").play();
+            const eff = document.getElementById("effect-wrong");
+            eff.style.opacity = 1;
+            document.body.classList.add("shake");
+            setTimeout(() => {
+                eff.style.opacity = 0;
+                document.body.classList.remove("shake");
+            }, 500);
+        }
+
+
+        // 0.8秒後に本来の送信を実行
+        setTimeout(() => {
+            form.submit();
+        }, 800);
+
+        e.preventDefault();
+    });
+});
+</script>
+<div id="star-container"></div>
+
+<script>
+function spawnStars() {
+    const container = document.getElementById("star-container");
+
+    for (let i = 0; i < 15; i++) {
+        const star = document.createElement("div");
+        star.classList.add("star");
+
+        // ランダム方向に飛ばす
+        const angle = Math.random() * 2 * Math.PI;
+        const distance = 120 + Math.random() * 80;
+
+        const x = Math.cos(angle) * distance;
+        const y = Math.sin(angle) * distance;
+
+        star.style.setProperty("--x", `${x}px`);
+        star.style.setProperty("--y", `${y}px`);
+
+        // 画面中央に配置
+        star.style.left = "50%";
+        star.style.top = "50%";
+        star.style.transform = "translate(-50%, -50%)";
+
+        container.appendChild(star);
+
+        // アニメーション後に削除
+        setTimeout(() => {
+            star.remove();
+        }, 800);
+    }
+}
+</script>
+
+
+</body>
+</html>
