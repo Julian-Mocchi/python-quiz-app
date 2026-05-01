@@ -1,0 +1,243 @@
+/* 全体の基本設定 */
+body {
+    font-family: "Helvetica", "Arial", sans-serif;
+    background: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* 中央寄せコンテナ */
+.container {
+    width: 90%;
+    max-width: 480px;
+    margin: 40px auto;
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+/* 見出し */
+h2, h3 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+/* カード（問題文やプロフィール） */
+.card {
+    background: #fafafa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border: 1px solid #ddd;
+}
+
+/* ボタン */
+.btn {
+    width: 100%;
+    padding: 12px;
+    background: #1976d2;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: 0.2s;
+}
+
+.btn:hover {
+    background: #0d47a1;
+}
+
+/* 選択肢 */
+.choice {
+    display: block;
+    padding: 10px;
+    margin: 8px 0;
+    background: #eee;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.choice:hover {
+    background: #ddd;
+}
+
+/* テーブル（進捗・スコア履歴） */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 15px;
+}
+
+table th, table td {
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+    text-align: center;
+}
+
+table th {
+    background: #1976d2;
+    color: #fff;
+}
+
+/* XPバー */
+.xp-bar-container {
+    width: 100%;
+    height: 12px;
+    background: #ddd;
+    border-radius: 6px;
+    margin: 10px 0 20px;
+}
+
+.xp-bar {
+    height: 12px;
+    background: #4caf50;
+    border-radius: 6px;
+}
+
+/* エラーメッセージ */
+.error {
+    color: #d32f2f;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+/* 成功メッセージ */
+.message {
+    color: #388e3c;
+    text-align: center;
+    margin-bottom: 15px;
+}
+/* ============================
+   ログイン画面専用デザイン
+   ============================ */
+
+/* 背景画像（全画面） */
+.login-bg {
+    background: url("/static/bg.jpg") no-repeat center center / cover;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* ログインカード */
+.login-card {
+    width: 90%;
+    max-width: 380px;
+    background: rgba(255, 255, 255, 0.85);
+    padding: 30px;
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+    backdrop-filter: blur(6px);
+}
+
+/* ログインタイトル */
+.login-title {
+    text-align: center;
+    font-size: 26px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+/* 入力フォーム */
+.input-box {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+/* 新規登録リンク */
+.register-link {
+    text-align: center;
+    margin-top: 15px;
+    font-size: 14px;
+}
+.register-link a {
+    color: #1976d2;
+    text-decoration: none;
+}
+.register-link a:hover {
+    text-decoration: underline;
+}
+/* ============================
+   クイズ演出（正解・不正解）
+   ============================ */
+
+/* 正解エフェクト（緑の光が広がる） */
+.effect-correct {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0,255,0,0.4), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease-out;
+}
+
+/* 不正解エフェクト（赤の光 + バイブレーション） */
+.effect-wrong {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(255,0,0,0.4), transparent 70%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease-out;
+}
+
+.shake {
+    animation: shake 0.4s;
+}
+
+@keyframes shake {
+    0% { transform: translateX(0); }
+    20% { transform: translateX(-10px); }
+    40% { transform: translateX(10px); }
+    60% { transform: translateX(-10px); }
+    80% { transform: translateX(10px); }
+    100% { transform: translateX(0); }
+}
+/* ============================
+   星が飛び散るアニメーション
+   ============================ */
+
+#star-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.star {
+    position: absolute;
+    width: 18px;
+    height: 18px;
+    background: url("/static/star.png") no-repeat center center / contain;
+    animation: star-move 0.8s ease-out forwards;
+    opacity: 0;
+}
+
+@keyframes star-move {
+    0% {
+        transform: translate(0, 0) scale(1) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(var(--x), var(--y)) scale(0.2) rotate(360deg);
+        opacity: 0;
+    }
+}
